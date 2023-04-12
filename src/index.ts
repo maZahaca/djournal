@@ -20,6 +20,8 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
+console.log('Starting bot');
+
 const subscriptionCycles = 1;
 
 const {

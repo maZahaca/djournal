@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+  nodejs:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NODE_ENV=production
+      - OPENAI_MODEL=gpt-3.5-turbo
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
