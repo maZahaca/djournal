@@ -26,6 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          target: app
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/djournal:${{ github.sha }}
       - name: Deploy to DO

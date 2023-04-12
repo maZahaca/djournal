@@ -7,7 +7,10 @@ services:
     ports:
       - "6379:6379"
   nodejs:
-    build: .
+    build:
+        context: .
+        dockerfile: Dockerfile
+        target: app
     restart: always
     env_file:
       - .env
