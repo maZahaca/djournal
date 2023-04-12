@@ -3,11 +3,9 @@ name: CI/CD
 on:
   push:
     branches:
-      - master
-      - develop
-      - feature/*
-      - hotfix/*
-      - release/*
+      - main
+    tags:
+      - v*
 
 jobs:
   build:
