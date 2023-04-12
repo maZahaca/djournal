@@ -35,5 +35,5 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USER }}
           key: ${{ secrets.DIGITALOCEAN_KEY }}
           script: |
-
-            kubectl set image deployment/plyo-web plyo-web=${{ secrets.DOCKER_USERNAME }}/djournal:${{ github.sha }}
+            sed -i "s/${{ secrets.DOCKER_USERNAME }}\/djournal:.*/${{ secrets.DOCKER_USERNAME }}\/djournal:${{ github.sha }}/" docker-compose.yml
+            docker-compose up -d
