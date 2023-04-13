@@ -1,4 +1,6 @@
-import { Markup, Telegraf } from 'telegraf';
+import { Markup, Telegraf, session, type Context } from 'telegraf';
+import type { Update } from 'telegraf/types';
+import { Redis } from '@telegraf/session/redis';
 import { message } from 'telegraf/filters';
 import { Configuration, OpenAIApi } from 'openai';
 import {
@@ -14,7 +16,9 @@ import {
   systemContext,
   systemError,
 } from './templates';
-import { getSubscription } from "./subscriptions";
+import { getSubscription } from './subscriptions';
+import { AsyncSessionStore } from 'telegraf/typings/session';
+
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -22,13 +26,15 @@ if (process.env.NODE_ENV !== 'production') {
 
 console.log('Starting bot');
 
-const subscriptionCycles = 1;
+const subscriptionCycles = 2;
 
 const {
   BOT_TOKEN,
   OPENAI_TOKEN,
   OPENAI_ORG,
   OPENAI_MODEL,
+  REDIS_HOST,
+  REDIS_PORT,
 } = process.env;
 
 const openai = new OpenAIApi(new Configuration({
@@ -36,33 +42,40 @@ const openai = new OpenAIApi(new Configuration({
   organization: OPENAI_ORG,
 }));
 
-const bot = new Telegraf(BOT_TOKEN!);
-
 type ChatMessageType = { role: 'system' | 'user' | 'assistant', content: string };
-type ChatStateType = {
+type SessionType = {
   messages: ChatMessageType[],
-  actions: { [key: string]: number },
+  actions: { [key: string]: string },
   cycles: number,
   subscription: {
     type: string,
-    status: 'subscribed' | 'unsubscribed',
+    status: 'empty' | 'subscribed' | 'unsubscribed',
   },
 };
 
-const states: { [key: string]: ChatStateType } = {};
+interface BotContext<U extends Update = Update> extends Context<U> {
+  session: SessionType,
+}
 
-const initStateForChat = (chatId: number) => {
-  states[chatId] = {
-    actions: {},
-    messages: [],
-    cycles: 0,
-    subscription: {
-      ...states[chatId]?.subscription
-        ? states[chatId]?.subscription
-        : { type: getSubscription(), status: 'unsubscribed' },
-    },
-  }
-};
+const bot = new Telegraf<BotContext>(BOT_TOKEN!);
+const store = Redis<SessionType>({
+  url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
+}) as unknown as AsyncSessionStore<SessionType>;
+
+const createSession = (session?: SessionType): SessionType => ({
+  actions: {},
+  messages: [],
+  cycles: 0,
+  subscription: /*session?.subscription ? session.subscription :*/ {
+    type: getSubscription(),
+    status: 'empty',
+  },
+});
+
+// pass the store to session
+bot.use(session<SessionType, BotContext>({
+  store, defaultSession: () => createSession(),
+}));
 
 const getAICompletion = async (ctx: any, messages: ChatMessageType[]): Promise<string> => {
   console.log('messages', messages);
@@ -75,7 +88,7 @@ const getAICompletion = async (ctx: any, messages: ChatMessageType[]): Promise<s
 }
 
 const getActionOptions = (text: string): string[] => {
-  return text.split("\n").reduce((acc, cur): string[] => {
+  return text.split('\n').reduce((acc, cur): string[] => {
     const matched = cur.match(/^((\d+\s?\.)|(-\s?))(.+)$/);
     if (matched && matched[4]) {
       acc.push(matched[4].trim());
@@ -85,43 +98,45 @@ const getActionOptions = (text: string): string[] => {
 };
 
 const processForChat = async (ctx: any, chatId: number, message: string) => {
-  if (!states[chatId]) {
-    initStateForChat(chatId);
-  }
-
+  console.log('ctx.session', ctx.session);
+  const { session } = ctx;
   const payMatched = message.match(/^pay-(.+)$/)
-  console.log('payMatched', payMatched, message);
+  if (session.subscription.status !== 'empty') {
+    return;
+  }
   if (payMatched && payMatched[1]) {
-    if (payMatched[1] === subscriptionNotReady()) {
+    if (payMatched[1] === 'not-ready') {
+      ctx.session.subscription.status = 'unsubscribed';
       ctx.reply(subscriptionNotSubscribed());
     } else {
+      ctx.session.subscription.status = 'subscribed';
       ctx.reply(subscriptionSubscribed());
     }
     return;
   }
-  if (states[chatId].cycles >= subscriptionCycles) {
-    const subscriptionPlan = states[chatId].subscription.type;
+  if (session.cycles >= subscriptionCycles) {
+    const subscriptionPlan = session.subscription.type;
 
     const keyboard = Markup.inlineKeyboard([
       Markup.button.callback(subscriptionPlan, `pay-${subscriptionPlan}`),
-      Markup.button.callback(subscriptionNotReady(), `pay-${subscriptionNotReady()}`),
+      Markup.button.callback(subscriptionNotReady(), `pay-not-ready`),
     ]);
     await ctx.reply(`${subscriptionHeader()}`, keyboard);
     return;
   }
 
   const messages: ChatMessageType[] = [];
-  for (const message of states[chatId].messages) {
+  for (const message of session.messages) {
     messages.push(message);
   }
 
   try {
     let completionText: string;
     // first message about long diary record
-    if (states[chatId].messages.length === 0) {
+    if (session.messages.length === 0) {
       messages.push({ role: 'user', content: diaryAIMessageV3(message) });
     } else {
-      messages.push({ role: 'user', content: diaryAISummaryRecommend(message)  });
+      messages.push({ role: 'user', content: diaryAISummaryRecommend(ctx.session.actions[message]) });
     }
     completionText = await getAICompletion(ctx, messages);
     if (
@@ -158,19 +173,24 @@ const processForChat = async (ctx: any, chatId: number, message: string) => {
     const options = getActionOptions(completionText);
     console.log('options', options);
     const keyboard = Markup.inlineKeyboard(
-      options.map((o, i) => Markup.button.callback((i + 1).toString(), o))
+      options.map((o, i) => Markup.button.callback((i + 1).toString(), (i + 1).toString())),
     );
+    session.actions = options.reduce((acc, cur, i) => {
+      acc[i + 1] = cur;
+      return acc;
+    }, {} as { [key: string]: string });
     await ctx.reply(`${diaryUserSummary()}\n${completionText}`, keyboard);
   } catch (error) {
     console.error(error);
   }
-  states[chatId].messages = messages;
-  states[chatId].cycles++;
+  session.messages = messages;
+  session.cycles++;
 }
 
 bot.start(async (ctx) => {
   // reset conversations context for the chat when /start called
-  initStateForChat(ctx.message.chat.id);
+  ctx.session = createSession(ctx.session);
+
   const messages = helloMessage();
   await messages.reduce(async (prev, message, index) => {
     await prev;
