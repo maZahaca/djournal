@@ -41,7 +41,7 @@ export const diaryAIMessageV3 = (userMessage: string): string => `
 `;
 
 export const diaryAISummary = (): string => `
-Сделай список рекомендаций из 3-4 слов.
+Сделай список рекомендаций из 3-4 слов. Покажи рекомендации связанные с психотерапией, рекомендации на другие темы писать не нужно.
 `;
 
 export const diaryUserSummary = (): string => `
