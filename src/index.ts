@@ -5,15 +5,18 @@ import { message } from 'telegraf/filters';
 import { Configuration, OpenAIApi } from 'openai';
 import {
   badAIResponse,
-  diaryAIMessageV2,
   diaryAIMessageV3,
-  diaryAISummary, diaryAISummaryRecommend,
+  diaryAISummary,
+  diaryAISummaryRecommend,
   diaryUserSummary,
   helloMessage,
   notADiaryNote,
   notARealLifeCase,
-  notEnoughContext, subscriptionHeader, subscriptionNotReady, subscriptionNotSubscribed, subscriptionSubscribed,
-  systemContext,
+  notEnoughContext,
+  subscriptionHeader,
+  subscriptionNotReady,
+  subscriptionNotSubscribed,
+  subscriptionSubscribed,
   systemError,
 } from './templates';
 import { getSubscription } from './subscriptions';
