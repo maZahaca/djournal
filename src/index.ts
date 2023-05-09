@@ -311,6 +311,7 @@ bot.command('subscribe', async (ctx) => {
 });
 
 bot.action(/^pay-(.+)$/, async (ctx) => {
+  await ctx.editMessageReplyMarkup(undefined);
   const { session } = ctx;
   if (session.subscription.status !== 'empty') {
     return;
@@ -329,6 +330,7 @@ bot.action(/^pay-(.+)$/, async (ctx) => {
 });
 
 bot.action(new RegExp(`^${BUTTON_WHAT_TO_WRITE}$`), async (ctx) => {
+  await ctx.editMessageReplyMarkup(undefined);
   await typeMessages(ctx, whatToWriteAbout());
 });
 
@@ -352,6 +354,7 @@ bot.on(message('text'), async (ctx) => {
 });
 bot.on(message('sticker'), (ctx) => ctx.reply('👍'));
 bot.action(/.*/, async (ctx) => {
+  await ctx.editMessageReplyMarkup(undefined);
   const { id: chatId } = ctx.update.callback_query.message!.chat;
   const { input: message } = ctx.match;
   const { session } = ctx;
