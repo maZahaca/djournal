@@ -39,5 +39,5 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USER }}
           key: ${{ secrets.DIGITALOCEAN_KEY }}
           script: |
-            sed -i "s/${{ secrets.DOCKER_USERNAME }}\/djournal:.*/${{ secrets.DOCKER_USERNAME }}\/djournal:${{ steps.create_tag.outputs.tag }}/" docker-compose.yml
-            docker-compose up -d
+            sed -i "s/${{ secrets.DOCKER_USERNAME }}\/djournal:.*/${{ secrets.DOCKER_USERNAME }}\/djournal:${{ steps.create_tag.outputs.tag }}/" docker-compose.yaml
+            docker compose up -d
