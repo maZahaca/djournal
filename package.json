@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "tsc src/index.ts",
+    "start": "ts-node-dev --respawn -- src/index.ts",
     "build": "tsc --outDir dist",
-    "dev": "ts-node-dev --respawn -- src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,9 +20,14 @@
   "homepage": "https://github.com/maZahaca/djournal#readme",
   "dependencies": {
     "@telegraf/session": "^2.0.0-beta.6",
+    "date-fns": "^2.30.0",
     "openai": "^3.2.1",
-    "redis": "^4.6.5",
-    "telegraf": "^4.12.3-canary.1"
+    "pg": "^8.11.3",
+    "redis": "^4.6.10",
+    "reflect-metadata": "^0.1.13",
+    "telegraf": "^4.12.3-canary.1",
+    "typeorm": "^0.3.17",
+    "typeorm-naming-strategies": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

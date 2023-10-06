@@ -4,5 +4,7 @@
     "module": "commonjs",
     "strict": true,
     "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }

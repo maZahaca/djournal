@@ -6,23 +6,33 @@ services:
     restart: always
     ports:
       - "6379:6379"
-  nodejs:
-    build:
-        context: .
-        dockerfile: Dockerfile
-        target: app
+  db:
+    image: postgres:15-alpine
     restart: always
-    env_file:
-      - .env
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NODE_ENV=production
-      - OPENAI_MODEL=gpt-3.5-turbo
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
     ports:
-      - "3000:3000"
+      - '5632:5432'
     volumes:
-      - .:/app
-      - /app/node_modules
-    depends_on:
-      - redis
+      - ./.sql/:/docker-entrypoint-initdb.d/
+#  nodejs:
+#    build:
+#        context: .
+#        dockerfile: Dockerfile
+#        target: app
+#    restart: always
+#    env_file:
+#      - .env
+#    environment:
+#      - REDIS_HOST=redis
+#      - REDIS_PORT=6379
+#      - NODE_ENV=production
+#      - OPENAI_MODEL=gpt-3.5-turbo
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - .:/app
+#      - /app/node_modules
+#    depends_on:
+#      - redis
