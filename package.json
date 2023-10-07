@@ -27,6 +27,7 @@
     "reflect-metadata": "^0.1.13",
     "telegraf": "^4.12.3-canary.1",
     "typeorm": "^0.3.17",
+    "typeorm-encrypted": "^0.8.0",
     "typeorm-naming-strategies": "^4.1.0"
   },
   "devDependencies": {

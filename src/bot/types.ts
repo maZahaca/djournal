@@ -6,7 +6,7 @@ export interface BotContext<U extends Update = Update> extends Context<U> {
   session: SessionType,
 }
 
-export type UserChat = { id: number, first_name: string, last_name: string, username: string };
+export type UserChat = { id: number, first_name: string, last_name: string, username: string, language_code: string };
 
 export type FeedbackItem = { question: string, answer?: string };
 

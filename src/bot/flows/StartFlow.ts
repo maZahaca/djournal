@@ -17,11 +17,13 @@ export class StartFlow extends AbstractFlow {
   async onAction(ctx: BotContext): Promise<void> {
     // reset conversations context for the chat when /start called
     const chat = (ctx.chat as unknown as UserChat);
+    const from = (ctx.from as unknown as UserChat);
     const refs = await this.db.manager.upsert<User>(User, {
       telegramChatId: chat.id.toString(),
       telegramUsername: chat.username,
       firstName: chat.first_name,
       lastName: chat.last_name,
+      language: from.language_code,
     }, ['telegramChatId']);
 
     const userId = refs.identifiers[0].id;

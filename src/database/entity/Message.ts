@@ -8,6 +8,8 @@ import {
   RelationId
 } from "typeorm"
 import { User } from "./User";
+import { EncryptionTransformer } from "typeorm-encrypted";
+import { EncryptionTransformerConfig } from "./encryption-config";
 
 @Entity()
 export class Message {
@@ -41,6 +43,7 @@ export class Message {
   @Column({
     type: 'text',
     nullable: false,
+    transformer: new EncryptionTransformer(EncryptionTransformerConfig)
   })
   content?: string;
 }

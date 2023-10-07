@@ -1,7 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Unique } from "typeorm"
+import { EncryptionTransformer } from "typeorm-encrypted";
 import { Message } from "./Message";
 import { Page } from "./Page";
 import { SubscriptionTier } from "./types";
+import { EncryptionTransformerConfig } from "./encryption-config";
 
 @Entity()
 export class User {
@@ -15,14 +17,32 @@ export class User {
 
   @Column({
     unique: true,
+    type: "varchar",
+    nullable: true,
+    transformer: new EncryptionTransformer(EncryptionTransformerConfig)
   })
   telegramUsername?: string
 
-  @Column()
+  @Column({
+    type: "varchar",
+    nullable: true,
+    transformer: new EncryptionTransformer(EncryptionTransformerConfig)
+  })
   firstName?: string
 
-  @Column()
+  @Column({
+    type: "varchar",
+    nullable: true,
+    transformer: new EncryptionTransformer(EncryptionTransformerConfig)
+  })
   lastName?: string
+
+  @Column({
+    type: "varchar",
+    length: 2,
+    nullable: true,
+  })
+  language?: string
 
   @Column({
     nullable: false,
