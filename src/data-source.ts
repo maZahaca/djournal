@@ -24,11 +24,14 @@ export const AppDataSource = new DataSource({
   logging: true,
   entities: [
     'src/database/entity/**{.ts,.js}',
+    'dist/database/entity/**{.ts,.js}',
   ],
   subscribers: [
     'src/database/subscriber/**{.ts,.js}',
+    'dist/database/subscriber/**{.ts,.js}',
   ],
   migrations: [
     'src/database/migration/**{.ts,.js}',
+    'dist/database/migration/**{.ts,.js}',
   ],
 })
