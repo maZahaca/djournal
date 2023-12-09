@@ -45,5 +45,32 @@ export class Message {
     nullable: false,
     transformer: new EncryptionTransformer(EncryptionTransformerConfig)
   })
-  content?: string;
+  content: string;
+
+  @Column({ nullable: true, type: 'decimal' })
+  disgust?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  neutral?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  anger?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  interest?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  fear?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  sadness?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  surprise?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  joy?: number;
+
+  @Column({ nullable: true, type: 'decimal' })
+  guilt?: number;
 }

@@ -5,12 +5,13 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  RelationId
+  RelationId, Unique
 } from "typeorm"
 import { User } from "./User";
 import { PagePeriodType } from "./types";
 
 @Entity()
+@Unique(['userId', 'period', 'date'])
 export class Page {
   @PrimaryGeneratedColumn("uuid")
   id?: string;
@@ -43,5 +44,8 @@ export class Page {
     enum: PagePeriodType,
     default: PagePeriodType.DAY,
   })
-  tier?: PagePeriodType;
+  period?: PagePeriodType;
+
+  @Column({ nullable: false })
+  date?: Date;
 }

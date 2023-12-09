@@ -27,7 +27,7 @@ export class RatingAIFlow extends AbstractFlow {
     });
     const msgs = messages.map((m) => m.content!).filter(Boolean);
     await ctx.sendChatAction('typing');
-    const completionText = await getAICompletion(this.openai, ctx, [{ role: 'user', content: getAITextRating(msgs.join('\n')) }]);
+    const completionText = await getAICompletion(this.openai, [{ role: 'user', content: getAITextRating(msgs.join('\n')) }]);
     await typeMessages(ctx, getMessages(completionText));
     this.finishFlowCallback && this.finishFlowCallback(ctx);
   }

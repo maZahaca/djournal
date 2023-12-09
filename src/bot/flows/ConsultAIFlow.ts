@@ -73,7 +73,8 @@ const processForChat = async (openai: OpenAIApi, ctx: any, chatId: number, msgs:
     //   }
     //   messages.push({ role: 'user', content: diaryAISummaryRecommend(ctx.session.actions[message]) });
     // }
-    completionText = await getAICompletion(openai, ctx, messages);
+    await ctx.sendChatAction('typing');
+    completionText = await getAICompletion(openai, messages);
     if (
       !completionText ||
       completionText.match(new RegExp(`^${badAIResponse()}`))
@@ -97,7 +98,7 @@ const processForChat = async (openai: OpenAIApi, ctx: any, chatId: number, msgs:
     // Summary
     await ctx.sendChatAction('typing');
     messages.push({ role: 'user', content: diaryAISummary() });
-    completionText = await getAICompletion(openai, ctx, messages);
+    completionText = await getAICompletion(openai, messages);
     if (
       !completionText ||
       [notCorrectDiaryMessage()].includes(completionText) ||

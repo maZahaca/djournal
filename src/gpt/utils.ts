@@ -2,8 +2,7 @@ import { OpenAIApi } from "openai";
 import { ChatMessageType } from "../bot/types";
 import { OPENAI_MODEL } from "./const";
 
-export const getAICompletion = async (openai: OpenAIApi, ctx: any, messages: ChatMessageType[]): Promise<string> => {
-  await ctx.sendChatAction('typing');
+export const getAICompletion = async (openai: OpenAIApi, messages: ChatMessageType[]): Promise<string> => {
   try {
     let completion = await openai.createChatCompletion({
       model: OPENAI_MODEL!,
@@ -12,6 +11,7 @@ export const getAICompletion = async (openai: OpenAIApi, ctx: any, messages: Cha
         content: m.content,
       })),
     });
+    console.log('data', completion!.data);
     return completion!.data!.choices[0].message!.content;
   } catch (error) {
     // @ts-ignore

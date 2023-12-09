@@ -19,10 +19,12 @@ import { HelpFlow } from "./bot/flows/HelpFlow";
 import { ConsultAIFlow } from "./bot/flows/ConsultAIFlow";
 import { RatingAIFlow } from "./bot/flows/RatingAIFlow";
 import { SummarizeAIFlow } from "./bot/flows/SummarizeAIFlow";
+import { MessageReminder } from "./bot/process/MessageReminder";
+import { EmotionalSummarize } from "./bot/process/EmotionalSummarize";
+import { DaySummarize } from "./bot/process/DaySummarize";
+import { WeekSummarize } from "./bot/process/WeekSummarize";
 
 console.log('Starting bot');
-
-const subscriptionCycles = 3;
 
 const {
   BOT_TOKEN,
@@ -49,9 +51,22 @@ const openai = new OpenAIApi(new Configuration({
     store, defaultSession: () => createSession(),
   }));
 
+  const schedules = [
+    new MessageReminder(db, bot.telegram),
+    new EmotionalSummarize(db, bot.telegram),
+    new DaySummarize(db, bot.telegram, openai),
+    new WeekSummarize(db, bot.telegram, openai),
+  ];
+
   // Enable graceful stop
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+  process.once('SIGINT', () => {
+    bot.stop('SIGINT');
+    console.log('Stopping all schedules');
+    schedules.forEach((s) => s.stop());
+  });
+  process.once('SIGTERM', () => {
+    bot.stop('SIGTERM');
+  });
 
   const flowsStore = new Map<FlowAction, AbstractFlow>();
   const finishFlowCallback = (ctx: BotContext) => {
