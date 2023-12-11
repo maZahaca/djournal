@@ -15,7 +15,7 @@ ${message}`;
 export class WeekSummarize extends AbstractScheduledProcess {
   readonly openai;
   constructor(db: DataSource, telegram: Telegram, openai: OpenAIApi) {
-    super(db, telegram, '* * * * *');
+    super(db, telegram, '* 19 * * *');
     this.openai = openai;
   }
 
