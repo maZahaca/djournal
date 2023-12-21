@@ -12,10 +12,14 @@ import { User } from "../../database/entity/User";
 const messageTemplate = (message: string) => `Привет! Ты супер! Я вижу наше общение очень продуктивным. Я еще раз прочитал твои сообщения за неделю и подсветил, на мой взгляд, самое важное
 ${message}`;
 
+const {
+  SCHEDULE_WEEK_SUMMARIZE = '0 19 * * 0',
+} = process.env;
+
 export class WeekSummarize extends AbstractScheduledProcess {
   readonly openai;
   constructor(db: DataSource, telegram: Telegram, openai: OpenAIApi) {
-    super(db, telegram, '* 19 * * *');
+    super(db, telegram, SCHEDULE_WEEK_SUMMARIZE);
     this.openai = openai;
   }
 

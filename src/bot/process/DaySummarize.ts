@@ -10,13 +10,17 @@ import { Page } from "../../database/entity/Page";
 import { PagePeriodType } from "../../database/entity/types";
 import { User } from "../../database/entity/User";
 
+const {
+  SCHEDULE_DAY_SUMMARIZE = '0 7 * * *',
+} = process.env;
+
 const messageTemplate = (message: string) => `Доброе утро! Я прочитал твое сообщение и подсветил, на мой взгляд, самое важное
 ${message}`;
 
 export class DaySummarize extends AbstractScheduledProcess {
   readonly openai;
   constructor(db: DataSource, telegram: Telegram, openai: OpenAIApi) {
-    super(db, telegram, '* 7 * * *');
+    super(db, telegram, SCHEDULE_DAY_SUMMARIZE);
     this.openai = openai;
   }
 

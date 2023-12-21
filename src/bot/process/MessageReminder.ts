@@ -39,9 +39,13 @@ const questions = [
   'Если бы я мог отправиться в любое место прямо сейчас, куда бы я поехал?',
 ];
 
+const {
+  SCHEDULE_MESSAGE_REMINDER = '0 19 * * *',
+} = process.env;
+
 export class MessageReminder extends AbstractScheduledProcess {
   constructor(db: DataSource, telegram: Telegram) {
-    super(db, telegram, '0 19 * * *');
+    super(db, telegram, SCHEDULE_MESSAGE_REMINDER);
   }
 
   async execute(): Promise<void> {

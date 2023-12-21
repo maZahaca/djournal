@@ -8,9 +8,13 @@ const findEmotionValue = (
   emotions: { label: string; score: number }[], label: string
 ) => emotions.find((e) => e.label === label)?.score;
 
+const {
+  SCHEDULE_EMOTIONAL_SUMMARIZE = '0 19 * * *',
+} = process.env;
+
 export class EmotionalSummarize extends AbstractScheduledProcess {
   constructor(db: DataSource, telegram: Telegram) {
-    super(db, telegram, '0 19 * * *');
+    super(db, telegram, SCHEDULE_EMOTIONAL_SUMMARIZE);
   }
 
   async execute(): Promise<void> {
