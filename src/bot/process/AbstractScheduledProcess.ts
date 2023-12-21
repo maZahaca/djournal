@@ -17,6 +17,7 @@ export abstract class AbstractScheduledProcess {
     if (schedule) {
       this.schedule = schedule;
     }
+    console.log('Registered scheduled task for', this.constructor.name, this.schedule);
     if (this.schedule) {
       this.task = cron.schedule(this.schedule, () => {
         console.log('Executing scheduled process', this.constructor.name);
